@@ -1,0 +1,31 @@
+import os
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+# Mengambil Token dari Settingan Render (Environment Variables)
+# Jika belum diatur, default-nya 'yenz_secret_kunci_99'
+YENZ_TOKEN = os.environ.get('YENZ_TOKEN', 'yenz_secret_kunci_99')
+
+@app.route('/')
+def home():
+    return "Yenz-Pay Gateway Online 🚀"
+
+@app.route('/webhook', methods=['POST'])
+def receive_mutasi():
+    # Cek Kunci Keamanan di Header
+    auth_header = request.headers.get('X-Yenz-Token')
+    
+    if auth_header != YENZ_TOKEN:
+        # Jika token salah, kasih error 403 (Forbidden)
+        return jsonify({"status": "error", "message": "Akses Ilegal, Bre!"}), 403
+
+    # Ambil data JSON dari HP Poco M3
+    data = request.json
+    print(f"✅ Mutasi Masuk: {data}")
+    
+    # Di sini kamu bisa tambahin logic buat simpan ke Database atau kirim ke Telegram
+    return jsonify({"status": "success", "msg": "Data Aman Terkirim"}), 200
+
+if __name__ == "__main__":
+    app.run()
